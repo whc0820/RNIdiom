@@ -1,43 +1,55 @@
 import * as React from 'react';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Divider, List, Switch } from 'react-native-paper';
 import { useTheme } from '@react-navigation/native';
 
-const SettingsPage = () => {
-    const theme = useTheme();
-    const colors = theme.colors;
+import { isDark, updateDark } from '../database/darkDBHelper';
 
-    const [dark, setDark] = React.useState(false);
-    const [notification, setNotification] = React.useState(false);
+import { CustomizedLightTheme, CustomizedDarkTheme } from '../themes';
 
-    let onToggleDarkTheme = () => {
-        setDark(!dark);
-    };
-
-    let onToggleNotification = () => {
-        setNotification(!notification);
+class SettingsPage extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { dark: false };
     }
 
-    return (
-        <View style={styles.container}>
-            <TouchableOpacity>
-                <List.Item title='About' theme={theme} />
-            </TouchableOpacity>
-            <Divider theme={theme} />
-            <List.Item title='Dark Theme'
-                theme={theme}
-                right={props => <Switch value={dark} onValueChange={onToggleDarkTheme} />} />
-            <Divider theme={theme} />
-            <TouchableOpacity>
-                <List.Item title='Notification' theme={theme} />
-            </TouchableOpacity>
-            <Divider theme={theme} />
-            <TouchableOpacity>
-                <List.Item title='Reset' theme={theme} />
-            </TouchableOpacity>
-            <Divider theme={theme} />
-        </View>
-    );
+    componentDidMount() {
+        isDark().then((value) => {
+            this.setState({ dark: value });
+        })
+    };
+
+    onToggleDarkTheme = () => {
+        updateDark(!this.state.dark).then(() => {
+            this.setState({ dark: !this.state.dark });
+        }).catch((error) => {
+            console.log(error);
+        });
+    };
+
+    render() {
+        const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
+        return (
+            <View style={styles.container}>
+                <TouchableOpacity>
+                    <List.Item title='About' theme={theme} />
+                </TouchableOpacity>
+                <Divider theme={theme} />
+                <List.Item title='Dark Theme'
+                    theme={theme}
+                    right={props => <Switch value={this.state.dark} onValueChange={this.onToggleDarkTheme} />} />
+                <Divider theme={theme} />
+                <TouchableOpacity>
+                    <List.Item title='Notification' theme={theme} />
+                </TouchableOpacity>
+                <Divider theme={theme} />
+                <TouchableOpacity>
+                    <List.Item title='Reset' theme={theme} />
+                </TouchableOpacity>
+                <Divider theme={theme} />
+            </View>
+        );
+    }
 };
 
 const styles = StyleSheet.create({

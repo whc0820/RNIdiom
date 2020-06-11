@@ -16,6 +16,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 import { CustomizedLightTheme, CustomizedDarkTheme } from './themes';
 
+import { isDarkExist, isDark, newDark } from './database/darkDBHelper';
+import realm from './database/darkDBHelper';
+
 import DashboardPage from './page/DashboardPage';
 import DictionaryPage from './page/DictionaryPage';
 import FavoritePage from './page/FavoritePage';
@@ -29,74 +32,104 @@ const settingsPage = () => <SettingsPage />
 
 const Tab = createMaterialBottomTabNavigator();
 
-const App = () => {
-  const theme = CustomizedLightTheme;
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { dark: false };
+    realm.addListener('change', this.updateUI);
+  }
 
-  return (
-    <NavigationContainer theme={theme}>
-      <StatusBar barStyle="dark-content"
-        backgroundColor={theme.colors.surface} />
+  componentDidMount = () => {
+    console.log('componenetDidMount');
+    this.updateUI();
+  };
 
-      <Tab.Navigator
-        activeColor={theme.colors.accent}
-        barStyle={{ backgroundColor: theme.colors.surface }}>
-        <Tab.Screen
-          name="DashboardPage"
-          component={dashboardPage}
-          options={{
-            tabBarLabel: 'Dashboard',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name='view-dashboard' color={color} size={26} />
-            )
-          }}
-        />
+  componentWillUnmount = () => {
+    console.log('componenetWillUnmount');
+    realm.removeAllListeners();
+  };
 
-        <Tab.Screen
-          name="DictionaryPage"
-          component={dictionaryPage}
-          options={{
-            tabBarLabel: 'Dictionary',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name='book' color={color} size={26} />
-            )
-          }}
-        />
+  updateUI = () => {
+    isDarkExist().then((value) => {
+      if (!value) {
+        newDark();
+      }
 
-        <Tab.Screen
-          name="FavoritePage"
-          component={favoritePage}
-          options={{
-            tabBarLabel: 'Favorite',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name='heart' color={color} size={26} />
-            )
-          }}
-        />
+      isDark().then((value) => {
+        this.setState({ dark: value });
+      });
+    });
+  };
 
-        <Tab.Screen
-          name="HistoryPage"
-          component={historyPage}
-          options={{
-            tabBarLabel: 'History',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name='history' color={color} size={26} />
-            )
-          }}
-        />
+  render() {
+    const barStyle = this.state.dark ? 'light-content' : 'dark-content';
+    const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
+    return (
+      <NavigationContainer theme={theme} >
+        <StatusBar barStyle={barStyle}
+          backgroundColor={theme.colors.surface} />
 
-        <Tab.Screen
-          name="SettingsPage"
-          component={settingsPage}
-          options={{
-            tabBarLabel: 'Settings',
-            tabBarIcon: ({ color }) => (
-              <MaterialCommunityIcons name='settings' color={color} size={26} />
-            )
-          }}
-        />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
+        <Tab.Navigator
+          activeColor={theme.colors.accent}
+          barStyle={{ backgroundColor: theme.colors.surface }}>
+          <Tab.Screen
+            name="DashboardPage"
+            component={dashboardPage}
+            options={{
+              tabBarLabel: 'Dashboard',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name='view-dashboard' color={color} size={26} />
+              )
+            }}
+          />
+
+          <Tab.Screen
+            name="DictionaryPage"
+            component={dictionaryPage}
+            options={{
+              tabBarLabel: 'Dictionary',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name='book' color={color} size={26} />
+              )
+            }}
+          />
+
+          <Tab.Screen
+            name="FavoritePage"
+            component={favoritePage}
+            options={{
+              tabBarLabel: 'Favorite',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name='heart' color={color} size={26} />
+              )
+            }}
+          />
+
+          <Tab.Screen
+            name="HistoryPage"
+            component={historyPage}
+            options={{
+              tabBarLabel: 'History',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name='history' color={color} size={26} />
+              )
+            }}
+          />
+
+          <Tab.Screen
+            name="SettingsPage"
+            component={settingsPage}
+            options={{
+              tabBarLabel: 'Settings',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons name='settings' color={color} size={26} />
+              )
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    );
+  }
 };
 
 export default App;
