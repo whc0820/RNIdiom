@@ -1,22 +1,30 @@
 import * as React from 'react';
 import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { Divider, List, Switch } from 'react-native-paper';
-import { useTheme } from '@react-navigation/native';
 
 import { isDark, updateDark } from '../database/darkDBHelper';
-
 import { CustomizedLightTheme, CustomizedDarkTheme } from '../themes';
+import ROUTE from '../routes.json';
+
 
 class SettingsPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { dark: false };
-    }
+    };
 
     componentDidMount() {
         isDark().then((value) => {
             this.setState({ dark: value });
         })
+    };
+
+    onPressAbout = () => {
+        this.props.navigation.navigate(ROUTE.ABOUT);
+    };
+
+    onPressNotification = () => {
+        this.props.navigation.navigate(ROUTE.NOTIFICATION);
     };
 
     onToggleDarkTheme = () => {
@@ -31,7 +39,7 @@ class SettingsPage extends React.Component {
         const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
         return (
             <View style={styles.container}>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={this.onPressAbout}>
                     <List.Item title='About' theme={theme} />
                 </TouchableOpacity>
                 <Divider theme={theme} />
@@ -39,7 +47,7 @@ class SettingsPage extends React.Component {
                     theme={theme}
                     right={props => <Switch value={this.state.dark} onValueChange={this.onToggleDarkTheme} />} />
                 <Divider theme={theme} />
-                <TouchableOpacity>
+                <TouchableOpacity onPress={this.onPressNotification}>
                     <List.Item title='Notification' theme={theme} />
                 </TouchableOpacity>
                 <Divider theme={theme} />

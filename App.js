@@ -23,12 +23,12 @@ import DashboardPage from './page/DashboardPage';
 import DictionaryPage from './page/DictionaryPage';
 import FavoritePage from './page/FavoritePage';
 import HistoryPage from './page/HistoryPage';
-import SettingsPage from './page/SettingsPage';
+import SettingsPageContainer from './page/SettingsPageContainer';
 const dashboardPage = () => <DashboardPage />
 const dictionaryPage = () => <DictionaryPage />
 const favoritePage = () => <FavoritePage />
 const historyPage = () => <HistoryPage />
-const settingsPage = () => <SettingsPage />
+const settingsPageContainer = () => <SettingsPageContainer />
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -44,12 +44,8 @@ class App extends React.Component {
     this.updateUI();
   };
 
-  componentWillUnmount = () => {
-    console.log('componenetWillUnmount');
-    realm.removeAllListeners();
-  };
-
   updateUI = () => {
+    console.log(this.updateUI);
     isDarkExist().then((value) => {
       if (!value) {
         newDark();
@@ -71,7 +67,8 @@ class App extends React.Component {
 
         <Tab.Navigator
           activeColor={theme.colors.accent}
-          barStyle={{ backgroundColor: theme.colors.surface }}>
+          barStyle={{ backgroundColor: theme.colors.surface }}
+          backBehavior='none'>
           <Tab.Screen
             name="DashboardPage"
             component={dashboardPage}
@@ -117,8 +114,8 @@ class App extends React.Component {
           />
 
           <Tab.Screen
-            name="SettingsPage"
-            component={settingsPage}
+            name="SettingsPageContainer"
+            component={settingsPageContainer}
             options={{
               tabBarLabel: 'Settings',
               tabBarIcon: ({ color }) => (
