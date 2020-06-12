@@ -51,7 +51,17 @@ export const getTime = () => {
     return new Promise((resolve, reject) => {
         Realm.open(databaseOptions).then((realm) => {
             let time = realm.objects(TIME_SCHEMA)[0];
-            resolve(`${time.hours} : ${time.minutes}`);
+            let hours = time.hours;
+            let minutes = time.minutes;
+
+            if (hours < 10) {
+                hours = '0' + hours;
+            }
+            if (minutes < 10) {
+                minutes = '0' + minutes;
+            }
+
+            resolve(`${hours} : ${minutes}`);
         }).catch((error) => {
             reject(error);
         });

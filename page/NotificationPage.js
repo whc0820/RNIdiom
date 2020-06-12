@@ -5,6 +5,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isTimeExist, newTime, getTime, updateTime } from '../database/timeDBHelper';
+import { isNotificationExist, newNotification, isNotification, updateNotification } from '../database/notificationDBHelper';
 
 class Notification extends React.Component {
     constructor(props) {
@@ -18,6 +19,7 @@ class Notification extends React.Component {
         this.onToggleNotification = this.onToggleNotification.bind(this);
         this.onToggleDateTimePicker = this.onToggleDateTimePicker.bind(this);
         this.onDateTimePickerConfirm = this.onDateTimePickerConfirm.bind(this);
+        this.onDateTimePickerCancel = this.onDateTimePickerCancel.bind(this);
         this.onDateTimePickerHide = this.onDateTimePickerHide.bind(this);
     };
 
@@ -29,13 +31,25 @@ class Notification extends React.Component {
             }
 
             getTime().then((time) => {
-                this.setState({ time: time })
+                this.setState({ time })
+            });
+        });
+
+        isNotificationExist().then((value) => {
+            if (!value) {
+                newNotification();
+            }
+
+            isNotification().then((notification) => {
+                this.setState({ notification });
             });
         });
     };
 
     onToggleNotification() {
-        this.setState({ notification: !this.state.notification });
+        updateNotification(!this.state.notification).then(() => {
+            this.setState({ notification: !this.state.notification });
+        });
     };
 
     onToggleDateTimePicker() {
@@ -47,7 +61,7 @@ class Notification extends React.Component {
         let minutes = selectedTime.getMinutes();
         updateTime(hours, minutes).then(() => {
             this.setState({ dateTimePicker: false });
-            
+
             if (hours < 10) {
                 hours = '0' + hours;
             }
@@ -57,6 +71,8 @@ class Notification extends React.Component {
             this.setState({ time: `${hours} : ${minutes}` });
         });
     };
+
+    onDateTimePickerCancel() { };
 
     onDateTimePickerHide() {
         this.setState({ dateTimePicker: false });
@@ -83,6 +99,7 @@ class Notification extends React.Component {
                     mode='time'
                     display='spinner'
                     onConfirm={this.onDateTimePickerConfirm}
+                    onCancel={this.onDateTimePickerCancel}
                     onHide={this.onDateTimePickerHide}
                 />
             </View>
