@@ -16,6 +16,7 @@ class SettingsPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = { dark: false };
+        this.onToggleDarkTheme= this.onToggleDarkTheme.bind(this);
     };
 
     componentDidMount() {
@@ -41,8 +42,7 @@ class SettingsPage extends React.Component {
                         <List.Item title='About' theme={theme} />
                     </TouchableOpacity>
                     <Divider theme={theme} />
-                    <List.Item title='Dark Theme'
-                        theme={theme}
+                    <List.Item title='Dark Theme' theme={theme}
                         right={props => <Switch value={this.state.dark} onValueChange={this.onToggleDarkTheme} />} />
                     <Divider theme={theme} />
                     <TouchableOpacity onPress={() => navigation.navigate(PAGECONFIG.NOTIFICATION.ROUTE)}>
@@ -72,7 +72,7 @@ class SettingsPage extends React.Component {
                     options={{ headerShown: false }} />
                 <Stack.Screen name={PAGECONFIG.ABOUT.ROUTE}
                     component={aboutPage}
-                    options={{ headerShown: true, title: PAGECONFIG.ABOUT.TITLE}} />
+                    options={{ headerShown: true, title: PAGECONFIG.ABOUT.TITLE }} />
                 <Stack.Screen name={PAGECONFIG.NOTIFICATION.ROUTE}
                     component={notificationPage}
                     options={{ headerShown: true, title: PAGECONFIG.NOTIFICATION.TITLE }} />
