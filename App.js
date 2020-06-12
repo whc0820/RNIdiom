@@ -15,20 +15,20 @@ import { createMaterialBottomTabNavigator } from '@react-navigation/material-bot
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { CustomizedLightTheme, CustomizedDarkTheme } from './themes';
-
 import { isDarkExist, isDark, newDark } from './database/darkDBHelper';
 import realm from './database/darkDBHelper';
 
+import PAGECONFIG from './page/page-config.json';
 import DashboardPage from './page/DashboardPage';
 import DictionaryPage from './page/DictionaryPage';
 import FavoritePage from './page/FavoritePage';
 import HistoryPage from './page/HistoryPage';
-import SettingsPageContainer from './page/SettingsPageContainer';
+import SettingsPage from './page/SettingsPage';
 const dashboardPage = () => <DashboardPage />
 const dictionaryPage = () => <DictionaryPage />
 const favoritePage = () => <FavoritePage />
 const historyPage = () => <HistoryPage />
-const settingsPageContainer = () => <SettingsPageContainer />
+const settingsPage = () => <SettingsPage />
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -42,6 +42,11 @@ class App extends React.Component {
   componentDidMount = () => {
     console.log('componenetDidMount');
     this.updateUI();
+  };
+
+  componentWillUnmount = () => {
+    console.log('componentWillUnmount');
+    realm.removeAllListeners();
   };
 
   updateUI = () => {
@@ -70,10 +75,10 @@ class App extends React.Component {
           barStyle={{ backgroundColor: theme.colors.surface }}
           backBehavior='none'>
           <Tab.Screen
-            name="DashboardPage"
+            name={PAGECONFIG.DASHBOARD.ROUTE}
             component={dashboardPage}
             options={{
-              tabBarLabel: 'Dashboard',
+              tabBarLabel: PAGECONFIG.DASHBOARD.TITLE,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name='view-dashboard' color={color} size={26} />
               )
@@ -81,10 +86,10 @@ class App extends React.Component {
           />
 
           <Tab.Screen
-            name="DictionaryPage"
+            name={PAGECONFIG.DICTIONARY.ROUTE}
             component={dictionaryPage}
             options={{
-              tabBarLabel: 'Dictionary',
+              tabBarLabel: PAGECONFIG.DICTIONARY.TITLE,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name='book' color={color} size={26} />
               )
@@ -92,10 +97,10 @@ class App extends React.Component {
           />
 
           <Tab.Screen
-            name="FavoritePage"
+            name={PAGECONFIG.FAVORITE.ROUTE}
             component={favoritePage}
             options={{
-              tabBarLabel: 'Favorite',
+              tabBarLabel: PAGECONFIG.FAVORITE.TITLE,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name='heart' color={color} size={26} />
               )
@@ -103,10 +108,10 @@ class App extends React.Component {
           />
 
           <Tab.Screen
-            name="HistoryPage"
+            name={PAGECONFIG.HISTORY.ROUTE}
             component={historyPage}
             options={{
-              tabBarLabel: 'History',
+              tabBarLabel: PAGECONFIG.HISTORY.TITLE,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name='history' color={color} size={26} />
               )
@@ -114,10 +119,10 @@ class App extends React.Component {
           />
 
           <Tab.Screen
-            name="SettingsPageContainer"
-            component={settingsPageContainer}
+            name={PAGECONFIG.SETTINGS.ROUTE}
+            component={settingsPage}
             options={{
-              tabBarLabel: 'Settings',
+              tabBarLabel: PAGECONFIG.SETTINGS.TITLE,
               tabBarIcon: ({ color }) => (
                 <MaterialCommunityIcons name='settings' color={color} size={26} />
               )

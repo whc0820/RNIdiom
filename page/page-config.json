@@ -1,0 +1,30 @@
+{
+    "DASHBOARD": {
+        "TITLE": "Dashboard",
+        "ROUTE": "ROUTE_DASHBOARD"
+    },
+    "DICTIONARY": {
+        "TITLE": "Dictionary",
+        "ROUTE": "ROUTE_DICTIONARY"
+    },
+    "FAVORITE": {
+        "TITLE": "Favorite",
+        "ROUTE": "ROUTE_FAVORITE"
+    },
+    "HISTORY": {
+        "TITLE": "History",
+        "ROUTE": "ROUTE_HISTORY"
+    },
+    "SETTINGS": {
+        "TITLE": "Settings",
+        "ROUTE": "ROUTE_SETTINGS"
+    },
+    "ABOUT": {
+        "TITLE": "About",
+        "ROUTE": "ROUTE_ABOUT"
+    },
+    "NOTIFICATION": {
+        "TITLE": "Notification",
+        "ROUTE": "ROUTE_NOTIFICATION"
+    }
+}
