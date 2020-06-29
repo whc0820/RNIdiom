@@ -100,6 +100,7 @@ class Notification extends React.Component {
                         right={props => <Text style={{ marginRight: 8, alignSelf: 'center', color: theme.colors.accent }}>{this.state.time}</Text>}
                     />
                 </TouchableOpacity>
+                <Divider theme={theme} />
                 <DateTimePickerModal isVisible={this.state.dateTimePicker}
                     mode='time'
                     display='spinner'
