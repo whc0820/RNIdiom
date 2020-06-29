@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Divider, List } from 'react-native-paper';
+import { StyleSheet, View } from 'react-native';
+import { Divider, List, Text } from 'react-native-paper';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 
@@ -20,11 +20,14 @@ class About extends React.Component {
         return (
             <View style={styles.container}>
                 <Divider theme={theme} />
-                <List.Item title='Digital Learning Final Project'
-                    theme={theme} />
+                <List.Item title='Author'
+                    theme={theme}
+                    right={props => <Text theme={theme} style={styles.item}>Jason Chen</Text>} />
                 <Divider theme={theme} />
-                <List.Item title='Jason Chen'
-                    theme={theme} />
+                <List.Item title='Student ID'
+                    theme={theme}
+                    right={props => <Text theme={theme} style={styles.item}>1086035</Text>} />
+                <Divider theme={theme} />
             </View>
         )
     }
@@ -35,6 +38,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         flex: 1,
         flexDirection: 'column'
+    },
+    item: {
+        alignSelf: 'center'
     }
 });
 

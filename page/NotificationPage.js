@@ -24,7 +24,10 @@ class Notification extends React.Component {
     };
 
     componentDidMount() {
+        console.log('componenetDidMount');
+
         this.setState({ dark: this.props.dark });
+
         isTimeExist().then((value) => {
             if (!value) {
                 newTime();
@@ -49,6 +52,8 @@ class Notification extends React.Component {
     onToggleNotification() {
         updateNotification(!this.state.notification).then(() => {
             this.setState({ notification: !this.state.notification });
+        }).catch((error) => {
+            throw (error);
         });
     };
 

@@ -5,8 +5,8 @@ export const CustomizedLightTheme = {
     colors: {
         primary: '#bb86fc',
         accent: '#03dac6',
-        background: '#ffffff',
-        surface: '#fafafa',
+        background: '#fafafa',
+        surface: '#ffffff',
         error: 'b00020',
         onBackground: '#000000',
         onSurface: '#000000',

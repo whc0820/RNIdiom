@@ -65,6 +65,7 @@ class App extends React.Component {
   render() {
     const barStyle = this.state.dark ? 'light-content' : 'dark-content';
     const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
+
     return (
       <NavigationContainer theme={theme} >
         <StatusBar barStyle={barStyle}
