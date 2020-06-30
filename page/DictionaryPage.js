@@ -8,9 +8,7 @@ import { isDark } from '../database/darkDBHelper';
 import realm from '../database/darkDBHelper';
 import PAGE_CONFIG from '../page/page-config.json';
 import idioms from '../resources/idioms.json';
-
 import IdiomPage from '../page/IdiomPage';
-
 
 const Stack = createStackNavigator();
 
@@ -76,9 +74,6 @@ class DictionaryPage extends React.Component {
 
     onPressIdiom = (navigation, item) => {
         navigation.navigate(PAGE_CONFIG.IDIOM.ROUTE, item);
-        if (item.id.endsWith('5')) {
-            this.setState({ isFavorite: true });
-        }
     };
 
     render() {

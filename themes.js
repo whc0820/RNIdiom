@@ -3,7 +3,7 @@ import { DefaultTheme, DarkTheme } from '@react-navigation/native';
 export const CustomizedLightTheme = {
     ...DefaultTheme,
     colors: {
-        primary: '#bb86fc',
+        primary: '#03dac6',
         accent: '#03dac6',
         background: '#fafafa',
         surface: '#ffffff',
@@ -17,7 +17,7 @@ export const CustomizedLightTheme = {
 export const CustomizedDarkTheme = {
     ...DarkTheme,
     colors: {
-        primary: '#bb86fc',
+        primary: '#03dac6',
         accent: '#03dac6',
         background: '#000000',
         surface: '#121212',

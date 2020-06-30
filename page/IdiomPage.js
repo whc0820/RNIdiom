@@ -5,7 +5,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isIdiomExist, newIdiom, getIdiom, updateIdiom } from '../database/idiomDBHelper';
-// import { isIdiomExist, newIdiom, getIdiom, updateIdiom } from '../database/idiomDBHelper';
 
 class IdiomPage extends React.Component {
     constructor(props) {
@@ -59,7 +58,7 @@ class IdiomPage extends React.Component {
     onPressFavorite = () => {
         let id = this.state.idiom.id;
         updateIdiom(id, this.state.isLearned, !this.state.isFavorite).then(() => {
-            this.setState({ isFavorite: !this.state.isFavorite });
+            this.setState({ isFavorite: !this.state.isFavorite, snackbar: true });
         });
     };
 
@@ -90,7 +89,7 @@ class IdiomPage extends React.Component {
         });
 
         return (
-            <ScrollView style={{ paddingHorizontal: 8 }}>
+            <ScrollView style={styles.container}>
                 <List.Item title='注音' theme={theme}
                     right={props => <Text theme={theme} style={{ alignSelf: 'center' }}>{IDIOM_PINYIN}</Text>} />
                 <Divider theme={theme} />
@@ -114,6 +113,10 @@ class IdiomPage extends React.Component {
 };
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingHorizontal: 8
+    },
     paragraph: {
         paddingHorizontal: 16,
         paddingBottom: 8

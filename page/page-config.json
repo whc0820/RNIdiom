@@ -11,6 +11,10 @@
         "TITLE": "Favorite",
         "ROUTE": "ROUTE_FAVORITE"
     },
+    "FAVORITE_MAIN": {
+        "TITLE": "Favorite Main",
+        "ROUTE": "ROUTE_FAVORITE_MAIN"
+    },
     "HISTORY": {
         "TITLE": "History",
         "ROUTE": "ROUTE_HISTORY"

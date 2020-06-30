@@ -66,6 +66,7 @@ export const getAllIdioms = () => {
     return new Promise((resolve, reject) => {
         Realm.open(databaseOptions).then((realm) => {
             let idioms = realm.objects(IDIOM_SCHEMA);
+            idioms = Object.values(JSON.parse(JSON.stringify(idioms)));
             resolve(idioms);
         }).catch((error) => {
             reject(error);
