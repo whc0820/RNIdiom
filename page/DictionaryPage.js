@@ -1,6 +1,5 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, SectionList } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Searchbar, Divider, Text } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -117,29 +116,13 @@ class DictionaryPage extends React.Component {
             );
         };
 
-        const idiomPage = ({ route }) => <IdiomPage route={route} dark={this.state.dark} />
+        const idiomPage = ({ route, navigation }) => <IdiomPage dark={this.state.dark} idiom={route.params} navigation={navigation} />
 
         return (
             <Stack.Navigator>
-                <Stack.Screen name={PAGE_CONFIG.DICTIONARY_MAIN.ROUTE}
-                    component={dictionaryMainPage}
+                <Stack.Screen name={PAGE_CONFIG.DICTIONARY_MAIN.ROUTE} component={dictionaryMainPage}
                     options={{ headerShown: false }} />
-                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE}
-                    component={idiomPage}
-                    options={({ route }) => ({
-                        title: route.params.title,
-                        headerStyle: { backgroundColor: theme.colors.surface },
-                        headerRight: () => (<TouchableOpacity>
-                            <Icon name={this.state.isFavorite ? 'heart' : 'heart-outline'}
-                                size={24}
-                                style={{ marginRight: 16 }}
-                                color={theme.colors.accent}
-                                onPress={() => {
-                                    this.setState({ isFavorite: !this.state.isFavorite });
-                                }} />
-                        </TouchableOpacity>)
-                    })}
-                />
+                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE} component={idiomPage} />
             </Stack.Navigator>
         );
     };

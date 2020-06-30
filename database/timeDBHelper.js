@@ -26,7 +26,7 @@ export const isTimeExist = () => {
         }).catch((error) => {
             reject(error);
         });
-    })
+    });
 };
 
 export const newTime = () => {
