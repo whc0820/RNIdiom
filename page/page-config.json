@@ -26,5 +26,13 @@
     "NOTIFICATION": {
         "TITLE": "Notification",
         "ROUTE": "ROUTE_NOTIFICATION"
+    },
+    "DICTIONARY_MAIN": {
+        "TITLE": "Dictionary Main",
+        "ROUTE": "ROUTE_DICTIONARY_MAIN"
+    },
+    "IDIOM": {
+        "TITLE": "Idiom",
+        "ROUTE": "ROUTE_IDIOM"
     }
 }

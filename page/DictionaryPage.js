@@ -1,15 +1,16 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, SectionList, ScrollView } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, SectionList } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Searchbar, Divider, Text, List, Paragraph, Button } from 'react-native-paper';
+import { Searchbar, Divider, Text } from 'react-native-paper';
 import { createStackNavigator } from '@react-navigation/stack';
-
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
 import realm from '../database/darkDBHelper';
-
+import PAGE_CONFIG from '../page/page-config.json';
 import idioms from '../resources/idioms.json';
+
+import IdiomPage from '../page/IdiomPage';
 
 
 const Stack = createStackNavigator();
@@ -75,8 +76,7 @@ class DictionaryPage extends React.Component {
     };
 
     onPressIdiom = (navigation, item) => {
-        navigation.navigate('IDIOM_PAGE', item);
-        console.log(item.id);
+        navigation.navigate(PAGE_CONFIG.IDIOM.ROUTE, item);
         if (item.id.endsWith('5')) {
             this.setState({ isFavorite: true });
         }
@@ -85,7 +85,7 @@ class DictionaryPage extends React.Component {
     render() {
         const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
 
-        let renderSectionHeader = ({ section: { title } }) => {
+        const renderSectionHeader = ({ section: { title } }) => {
             return (
                 <View style={{
                     padding: 16,
@@ -96,7 +96,7 @@ class DictionaryPage extends React.Component {
             );
         };
 
-        let DictionaryMainPage = ({ navigation }) => {
+        const dictionaryMainPage = ({ navigation }) => {
             return (
                 <View style={[styles.container]}>
                     <Searchbar theme={theme}
@@ -117,46 +117,15 @@ class DictionaryPage extends React.Component {
             );
         };
 
-        let IdiomPage = ({ route, navigation }) => {
-            const idiom = route.params;
-            const IDIOM_PINYIN = idiom['pinyin'];
-            const IDIOM_PINYIN_EN = idiom['pinyin-en'];
-            const IDIOM_MEANING = idiom['meaning'];
-            const IDIOM_SOURCE = idiom['source'];
-            const IDIOM_EXAMPLE = idiom['example'];
-            const IDIOM_DESCRIPTION = idiom['description'];
-            const IDIOM_USAGE = idiom['usage'];
-
-            return (
-                <ScrollView style={{ paddingHorizontal: 8 }}>
-                    <List.Item title='注音' theme={theme}
-                        right={props => <Text theme={theme} style={{ alignSelf: 'center' }}>{IDIOM_PINYIN}</Text>} />
-                    <Divider theme={theme} />
-                    <List.Item title='漢語拼音' theme={theme}
-                        right={props => <Text theme={theme} style={{ alignSelf: 'center' }}>{IDIOM_PINYIN_EN}</Text>} />
-                    <Divider theme={theme} />
-                    <List.Item title='釋義' theme={theme} />
-                    <Paragraph theme={theme} style={{ paddingHorizontal: 16, paddingBottom: 8 }}>{IDIOM_MEANING}</Paragraph>
-                    <Divider theme={theme} />
-                    <List.Item title='用法說明' theme={theme} />
-                    <Paragraph theme={theme} style={{ paddingHorizontal: 16, paddingBottom: 8 }}>{IDIOM_USAGE}</Paragraph>
-                    <Divider theme={theme} />
-                    <List.Item title='例句' theme={theme} />
-                    <Paragraph theme={theme} style={{ paddingHorizontal: 16, paddingBottom: 8 }}>{IDIOM_EXAMPLE}</Paragraph>
-                    <Divider theme={theme} />
-                    <List.Item title='典故說明' theme={theme} />
-                    <Paragraph theme={theme} style={{ paddingHorizontal: 16, paddingBottom: 8 }}>{IDIOM_SOURCE}</Paragraph>
-                </ScrollView>
-            )
-        };
+        const idiomPage = ({ route }) => <IdiomPage route={route} dark={this.state.dark} />
 
         return (
             <Stack.Navigator>
-                <Stack.Screen name="DICTIONAY_MAIN"
-                    component={DictionaryMainPage}
+                <Stack.Screen name={PAGE_CONFIG.DICTIONARY_MAIN.ROUTE}
+                    component={dictionaryMainPage}
                     options={{ headerShown: false }} />
-                <Stack.Screen name="IDIOM_PAGE"
-                    component={IdiomPage}
+                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE}
+                    component={idiomPage}
                     options={({ route }) => ({
                         title: route.params.title,
                         headerStyle: { backgroundColor: theme.colors.surface },
