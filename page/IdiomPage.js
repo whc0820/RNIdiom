@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     },
     paragraph: {
         paddingHorizontal: 16,
-        paddingBottom: 8
+        paddingBottom: 16
     }
 });
 

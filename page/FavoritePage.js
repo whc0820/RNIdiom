@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, SectionList } from 'react-native';
 import { Searchbar, Divider, Text } from 'react-native-paper';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
@@ -114,7 +114,7 @@ class FavoritePage extends React.Component {
             return (
                 <View style={[styles.container]}>
                     <Searchbar theme={theme}
-                        style={{ backgroundColor: theme.colors.surface }} />
+                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }} />
                     <SectionList
                         sections={this.state.data}
                         keyExtractor={(item, index) => item + index}
@@ -126,6 +126,7 @@ class FavoritePage extends React.Component {
                             </TouchableOpacity>
                             <Divider theme={theme} />
                         </View>}
+                        stickySectionHeadersEnabled={true}
                     />
                 </View>
             );
@@ -137,7 +138,10 @@ class FavoritePage extends React.Component {
             <Stack.Navigator>
                 <Stack.Screen name={PAGE_CONFIG.FAVORITE_MAIN.ROUTE} component={favoriteMainPage}
                     options={{ headerShown: false }} />
-                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE} component={idiomPage} />
+                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE} component={idiomPage}
+                    options={{
+                        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+                    }} />
             </Stack.Navigator>
         );
     };

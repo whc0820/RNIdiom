@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, StyleSheet, TouchableOpacity, } from 'react-native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { Divider, List, Switch, Text } from 'react-native-paper';
 import Slider from '@react-native-community/slider';
 
@@ -15,7 +15,6 @@ import NotificationPage from './NotificationPage';
 const Stack = createStackNavigator();
 
 class SettingsPage extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = { dark: false, dailyIdioms: 1 };
@@ -106,10 +105,18 @@ class SettingsPage extends React.Component {
                     options={{ headerShown: false }} />
                 <Stack.Screen name={PAGECONFIG.ABOUT.ROUTE}
                     component={this.aboutPage}
-                    options={{ headerShown: true, title: PAGECONFIG.ABOUT.TITLE }} />
+                    options={{
+                        headerShown: true,
+                        title: PAGECONFIG.ABOUT.TITLE,
+                        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+                    }} />
                 <Stack.Screen name={PAGECONFIG.NOTIFICATION.ROUTE}
                     component={this.notificationPage}
-                    options={{ headerShown: true, title: PAGECONFIG.NOTIFICATION.TITLE }} />
+                    options={{
+                        headerShown: true,
+                        title: PAGECONFIG.NOTIFICATION.TITLE,
+                        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+                    }} />
             </Stack.Navigator>
         );
     }

@@ -7,10 +7,12 @@ export const CustomizedLightTheme = {
         accent: '#03dac6',
         background: '#fafafa',
         surface: '#ffffff',
-        error: 'b00020',
         onBackground: '#000000',
         onSurface: '#000000',
         text: '#000000',
+        success: '#00c853',
+        error: '#b00020',
+        caution: '#ffab00'
     }
 };
 
@@ -21,9 +23,11 @@ export const CustomizedDarkTheme = {
         accent: '#03dac6',
         background: '#000000',
         surface: '#121212',
-        error: '#cf6679',
         onBackground: '#ffffff',
         onSurface: '#ffffff',
         text: '#ffffff',
+        success: '#00c853',
+        error: '#b00020',
+        caution: '#ffab00'
     }
 };

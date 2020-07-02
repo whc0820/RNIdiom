@@ -3,6 +3,10 @@
         "TITLE": "Dashboard",
         "ROUTE": "ROUTE_DASHBOARD"
     },
+    "DASHBOARD_MAIN": {
+        "TITLE": "Dashboard Main",
+        "ROUTE": "ROUTE_DASHBOARD_MAIN"
+    },
     "DICTIONARY": {
         "TITLE": "Dictionary",
         "ROUTE": "ROUTE_DICTIONARY"
@@ -38,5 +42,9 @@
     "IDIOM": {
         "TITLE": "Idiom",
         "ROUTE": "ROUTE_IDIOM"
+    },
+    "TEST": {
+        "TITLE": "Test",
+        "ROUTE": "ROUTE_TEST"
     }
 }

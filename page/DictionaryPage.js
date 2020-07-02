@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View, TouchableOpacity, SectionList } from 'react-native';
 import { Searchbar, Divider, Text } from 'react-native-paper';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
@@ -15,6 +15,20 @@ const Stack = createStackNavigator();
 class DictionaryPage extends React.Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            dark: false,
+            data: [],
+            isFavorite: false
+        };
+
+        realm.addListener('change', this.updateUI);
+    };
+
+    componentDidMount() {
+        isDark().then((value) => {
+            this.setState({ dark: value });
+        });
 
         const PINYINS = ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ', 'ㄐ', 'ㄑ', 'ㄒ', 'ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ',
             'ㄙ', 'ㄧ', 'ㄨ', 'ㄩ', 'ㄚ', 'ㄛ', 'ㄜ', 'ㄝ', 'ㄤ', 'ㄥ', 'ㄦ'];
@@ -47,19 +61,7 @@ class DictionaryPage extends React.Component {
             }
         }
 
-        this.state = {
-            dark: false,
-            data: data,
-            isFavorite: false
-        };
-
-        realm.addListener('change', this.updateUI);
-    };
-
-    componentDidMount() {
-        isDark().then((value) => {
-            this.setState({ dark: value });
-        });
+        this.setState({ data });
     };
 
     componentWillUnmount = () => {
@@ -94,7 +96,7 @@ class DictionaryPage extends React.Component {
             return (
                 <View style={[styles.container]}>
                     <Searchbar theme={theme}
-                        style={{ backgroundColor: theme.colors.surface }} />
+                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }} />
                     <SectionList
                         sections={this.state.data}
                         keyExtractor={(item, index) => item + index}
@@ -106,6 +108,7 @@ class DictionaryPage extends React.Component {
                             </TouchableOpacity>
                             <Divider theme={theme} />
                         </View>}
+                        stickySectionHeadersEnabled={true}
                     />
                 </View>
             );
@@ -117,7 +120,10 @@ class DictionaryPage extends React.Component {
             <Stack.Navigator>
                 <Stack.Screen name={PAGE_CONFIG.DICTIONARY_MAIN.ROUTE} component={dictionaryMainPage}
                     options={{ headerShown: false }} />
-                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE} component={idiomPage} />
+                <Stack.Screen name={PAGE_CONFIG.IDIOM.ROUTE} component={idiomPage}
+                    options={{
+                        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+                    }} />
             </Stack.Navigator>
         );
     };
