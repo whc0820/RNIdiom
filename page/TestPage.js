@@ -5,6 +5,7 @@ import { Card, Paragraph, List, Divider, Text, Snackbar } from 'react-native-pap
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import PAGE_CONFIG from './page-config.json';
 import idioms from '../resources/idioms.json';
+import { updateHistory } from '../database/historyDBHelper';
 
 const SNACKBAR_DURATION = 1000;
 
@@ -34,7 +35,9 @@ class TestPage extends React.Component {
         let questions = [];
         for (let idiom of this.props.idioms) {
             let question = {};
+            question.id = idiom.id;
             question.title = idiom.title;
+            question.wrongCount = 0;
             question.options = [];
             question.options.push({
                 'description': idiom.description,
@@ -86,6 +89,7 @@ class TestPage extends React.Component {
     onPressDone = () => {
         const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
         let questions = this.state.questions;
+
         for (let question of questions) {
             let isDone = false;
             for (let option of question.options) {
@@ -108,6 +112,7 @@ class TestPage extends React.Component {
             for (let option of question.options) {
                 if (option.selected === true && !option.isAnswer) {
                     option.isError = true;
+                    question.wrongCount += 1;
                     this.setState({
                         questions,
                         snackbar: true,
@@ -119,15 +124,43 @@ class TestPage extends React.Component {
             }
         }
 
-        this.setState({
-            snackbar: true,
-            snackbarColor: theme.colors.success,
-            snackbarMsg: `恭喜全部答案正確!`
-        });
+        let dataString = [];
+        for (let question of questions) {
+            let proficiency;
+            switch (question.wrongCount) {
+                case 0:
+                    proficiency = 1;
+                    break;
+                case 1:
+                    proficiency = 0.66;
+                    break;
+                case 2:
+                    proficiency = 0.33;
+                    break;
+                default:
+                    proficiency = 0;
+                    break;
+            }
+            dataString.push({
+                'id': question.id,
+                'title': question.title,
+                'proficiency': proficiency
+            });
+        }
 
-        setTimeout(() => {
-            this.props.navigation.navigate(PAGE_CONFIG.DASHBOARD_MAIN.ROUTE);
-        }, 1000);
+        let dateString = this.props.dateString;
+        dataString = JSON.stringify(dataString);
+        updateHistory(dateString, dataString).then(() => {
+            this.setState({
+                snackbar: true,
+                snackbarColor: theme.colors.success,
+                snackbarMsg: `恭喜全部答案正確!`
+            });
+
+            setTimeout(() => {
+                this.props.navigation.navigate(PAGE_CONFIG.DASHBOARD_MAIN.ROUTE);
+            }, 1000);
+        });
     };
 
     render() {

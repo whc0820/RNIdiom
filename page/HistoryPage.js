@@ -1,10 +1,12 @@
 import React from 'react';
-import { ScrollView, StyleSheet, FlatList } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import { List, Divider, Text } from 'react-native-paper';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
-import realm from '../database/darkDBHelper';
+import { getAllHistories } from '../database/historyDBHelper';
+import darkRealm from '../database/darkDBHelper';
+import historyRealm from '../database/historyDBHelper';
 
 class HistoryPage extends React.Component {
     constructor(props) {
@@ -12,46 +14,47 @@ class HistoryPage extends React.Component {
 
         this.state = {
             dark: false,
-            data: []
+            histories: []
         };
 
-        realm.addListener('change', this.updateUI);
+        darkRealm.addListener('change', this.updateDark);
+        historyRealm.addListener('change', this.updateHistory);
     };
 
     componentDidMount() {
-        isDark().then((dark) => {
-            this.setState({ dark });
-        });
-
-        let data = [];
-        for (let i = 0; i < 5; i++) {
-            let date = new Date();
-            let year = date.getFullYear();
-            let month = date.getMonth();
-            let day = date.getDay();
-
-            if (month < 10) {
-                month = `0${month}`
-            }
-            if (day < 10) {
-                day = `0${day}`
-            }
-            data.push({
-                'date': `${year}/${month}/${day}`,
-                'idioms': i % 2 == 0 ? [`a${i}`, `b${i}`, `c${i}`, `d${i}`] : [`e${i}`, `f${i}`]
-            });
-        }
-
-        this.setState({ data });
+        this.updateDark();
+        this.updateHistory();
     };
 
     componentWillUnmount = () => {
-        realm.removeAllListeners();
+        darkRealm.removeAllListeners();
+        historyRealm.removeAllListeners();
     };
 
-    updateUI = () => {
-        isDark().then((value) => {
-            this.setState({ dark: value });
+    updateDark = () => {
+        isDark().then((dark) => {
+            this.setState({ dark });
+        });
+    };
+
+    updateHistory = () => {
+        getAllHistories().then((allHistories) => {
+            let histories = [];
+            for (let history of allHistories) {
+                let idioms = [];
+                for (let d of JSON.parse(history.data)) {
+                    idioms.push({
+                        'title': d.title,
+                        'proficiency': `${d.proficiency * 100}%`
+                    });
+                }
+                histories.push({
+                    'date': history.date,
+                    'idioms': idioms
+                });
+            }
+            histories = histories.reverse();
+            this.setState({ histories });
         });
     };
 
@@ -59,33 +62,39 @@ class HistoryPage extends React.Component {
         const theme = this.state.dark ? CustomizedDarkTheme : CustomizedLightTheme;
 
         return (
-            <ScrollView style={styles.container}>
-                <FlatList
-                    data={this.state.data}
-                    keyExtractor={(item, index) => item + index}
-                    renderItem={({ item }) => {
-                        let idioms = [];
-                        for (let idiom of item.idioms) {
-                            idioms.push(<>
-                                <List.Item theme={theme} title={idiom} />
-                                <Divider theme={theme} />
-                            </>);
-                        }
-                        return (<>
-                            <List.Accordion theme={theme} title={item.date}>
-                                {idioms}
-                            </List.Accordion>
+            <FlatList
+                data={this.state.histories}
+                keyExtractor={(item, index) => item + index}
+                renderItem={({ item }) => {
+                    let idioms = [];
+                    for (let idiom of item.idioms) {
+                        idioms.push(<>
+                            <List.Item theme={theme}
+                                title={idiom.title}
+                                right={props => <>
+                                    <Text theme={theme}
+                                        style={{ marginRight: 16, alignSelf: 'center' }}
+                                    >{idiom.proficiency}</Text>
+                                </>} />
                             <Divider theme={theme} />
-                        </>)
-                    }} />
-            </ScrollView>
+                        </>);
+                    }
+                    return (<>
+                        <List.Accordion theme={theme} title={item.date}>
+                            {idioms}
+                        </List.Accordion>
+                        <Divider theme={theme} />
+                    </>)
+                }}
+                style={styles.container} />
         );
     };
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        paddingHorizontal: 8
     }
 });
 

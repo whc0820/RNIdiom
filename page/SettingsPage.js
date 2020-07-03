@@ -90,10 +90,10 @@ class SettingsPage extends React.Component {
                         <List.Item title='Notification' theme={theme} />
                     </TouchableOpacity>
                     <Divider theme={theme} />
-                    <TouchableOpacity>
+                    {/* <TouchableOpacity>
                         <List.Item title='Reset' theme={theme} />
                     </TouchableOpacity>
-                    <Divider theme={theme} />
+                    <Divider theme={theme} /> */}
                 </View>
             );
         };

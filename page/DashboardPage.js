@@ -1,18 +1,28 @@
 import React from 'react';
-import { StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { StyleSheet, ScrollView, Dimensions, TouchableOpacity, View } from 'react-native';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { Text, Card, Paragraph, List, Divider } from 'react-native-paper';
 import { LineChart, ProgressChart, ContributionGraph } from 'react-native-chart-kit';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
-import realm from '../database/darkDBHelper';
+import { isHistoryExist, newHistory, getHistoryData, getAllHistories } from '../database/historyDBHelper';
+import darkRealm from '../database/darkDBHelper';
+import historyRealm from '../database/historyDBHelper';
 import Idioms from '../resources/idioms.json';
 import PAGECONFIG from './page-config.json';
 import TestPage from './TestPage';
 
-let randomNumber = (max) => {
+const randomNumber = (max) => {
     return Math.floor(Math.random() * max);
+};
+
+const getIdiomById = (id) => {
+    for (let idiom of Idioms) {
+        if (id == idiom.id) {
+            return idiom;
+        }
+    }
 };
 
 const Stack = createStackNavigator();
@@ -22,35 +32,65 @@ class DashboardPage extends React.Component {
         super(props);
         this.state = {
             dark: false,
-            idioms: []
+            idioms: [],
+            histories: [],
+            dateString: ''
         };
 
-        realm.addListener('change', this.updateUI);
+        darkRealm.addListener('change', this.updateDark);
+        historyRealm.addListener('change', this.updateIdioms);
     };
 
     componentDidMount() {
-        isDark().then((value) => {
-            this.setState({ dark: value });
-        });
+        this.updateDark();
 
-        let idioms = [];
-        for (let i = 0; i < 5; i++) {
-            let idiom = {};
-            do {
-                idiom = Idioms[randomNumber(100)];
-            } while (idioms.includes(idiom));
-            idioms.push(idiom);
-        }
-        this.setState({ idioms });
+        let date = new Date();
+        let dateString = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+        this.setState({ dateString });
+
+        isHistoryExist(dateString).then((value) => {
+            if (!value) {
+                let dataString = [];
+                for (let i = 0; i < 5; i++) {
+                    let idiom = {};
+                    do {
+                        idiom = Idioms[randomNumber(Idioms.length)];
+                    } while (dataString.includes(idiom));
+                    dataString.push({
+                        'id': idiom.id,
+                        'title': idiom.title,
+                        'proficiency': 0
+                    });
+                }
+                newHistory(dateString, JSON.stringify(dataString));
+            }
+
+            this.updateIdioms();
+        });
     };
 
     componentWillUnmount() {
-        realm.removeAllListeners();
+        darkRealm.removeAllListeners();
+        historyRealm.removeAllListeners();
     };
 
-    updateUI = () => {
+    updateDark = () => {
         isDark().then((value) => {
             this.setState({ dark: value });
+        });
+    };
+
+    updateIdioms = () => {
+        getHistoryData(this.state.dateString).then((data) => {
+            let idioms = [];
+            for (let d of data) {
+                let idiom = getIdiomById(d.id);
+                idiom.proficiency = d.proficiency;
+                idioms.push(idiom);
+            }
+            getAllHistories().then((histories) => {
+                this.setState({ idioms, histories });
+            });
         });
     };
 
@@ -90,17 +130,6 @@ class DashboardPage extends React.Component {
             </>);
         }
 
-        const data = {
-            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-            datasets: [
-                {
-                    data: [1, 2, 3, 5, 3, 2, 2],
-                    color: (opacity = 1) => `rgba(3, 218, 198, ${opacity})`,
-                    strokeWidth: 2
-                }
-            ]
-        };
-
         const screenWidth = Dimensions.get("window").width - 32;
         const chartConfig = {
             backgroundGradientFrom: theme.colors.surface,
@@ -109,16 +138,8 @@ class DashboardPage extends React.Component {
             backgroundGradientToOpactiy: 1,
             strokeWidth: 2,
             barPercentage: 0.5,
-
             color: (opacity = 1) => `rgba(3, 218, 198, ${opacity})`,
-            barPercentage: 0.5,
         };
-
-        const progressData = {
-            labels: ["Swim", "Bike", "Run"],
-            data: [0.4, 0.6, 0.8]
-        };
-
         const commitsData = [
             { date: "2017-01-02", count: 1 },
             { date: "2017-01-03", count: 2 },
@@ -134,51 +155,88 @@ class DashboardPage extends React.Component {
         ];
 
         const dashboardView = ({ navigation }) => {
+            let progressChartData = {
+                labels: [],
+                data: []
+            };
+            for (let idiom of this.state.idioms) {
+                progressChartData.labels.push(idiom.title);
+                progressChartData.data.push(idiom.proficiency);
+            }
+
+            let lineChartView = [];
+            let lineChartData = {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    color: (opacity = 1) => `rgba(3, 218, 198, ${opacity})`,
+                    strokeWidth: 2
+                }]
+            };
+
+            let histories = JSON.parse(JSON.stringify(this.state.histories));
+            for (let history of histories.reverse()) {
+                if (lineChartData.labels.length >= 5) {
+                    break;
+                }
+                lineChartData.labels.push(history.date);
+                let data = JSON.parse(history.data);
+                let sum = 0;
+                for (let idiom of data) {
+                    sum += idiom.proficiency * 100;
+                }
+                lineChartData.datasets[0].data.push(sum / data.length);
+            }
+            lineChartData.labels.reverse();
+            lineChartData.datasets[0].data.reverse();
+
+            if (lineChartData.labels.length > 0) {
+                lineChartView.push(<>
+                    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+                        <Card.Title title='平均熟練度' titleStyle={{ color: theme.colors.onSurface }} />
+                        <LineChart
+                            data={lineChartData}
+                            width={screenWidth}
+                            height={220}
+                            chartConfig={chartConfig} />
+                    </Card>
+                </>);
+            }
+
             return (
                 <ScrollView style={styles.container}>
                     <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
                         <Card.Title title={`今日成語`} titleStyle={{ color: theme.colors.onSurface }} />
                         {idiomViews}
                         <List.Item theme={theme} style={{ padding: 0 }}
-                            right={props => <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}
-                                onPress={() => { navigation.navigate(PAGECONFIG.TEST.ROUTE); }}>
-                                <Text theme={theme}>開始測驗</Text>
-                                <List.Icon icon='arrow-right' color={theme.colors.accent} />
-                            </TouchableOpacity>}
-
-                        />
+                            right={props => <>
+                                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}
+                                    onPress={() => { navigation.navigate(PAGECONFIG.TEST.ROUTE); }}>
+                                    <Text theme={theme}>開始測驗</Text>
+                                    <List.Icon icon='arrow-right' color={theme.colors.accent} />
+                                </TouchableOpacity>
+                            </>} />
                     </Card>
                     <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-                        <Card.Title title='Correctness' titleStyle={{ color: theme.colors.onSurface }} />
-                        <LineChart
-                            data={data}
-                            width={screenWidth}
-                            height={220}
-                            chartConfig={chartConfig}
-                        />
-                    </Card>
-                    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-                        <Card.Title title='Progress' titleStyle={{ color: theme.colors.onSurface }} />
+                        <Card.Title title='各成語熟練度' titleStyle={{ color: theme.colors.onSurface }} />
                         <ProgressChart
-                            data={progressData}
+                            data={progressChartData}
                             width={screenWidth}
                             height={220}
                             chartConfig={chartConfig}
-                            hideLegend={false}
-                        />
+                            hideLegend={false} />
                     </Card>
-                    <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
-                        <Card.Title title='Day' titleStyle={{ color: theme.colors.onSurface }} />
+                    {lineChartView}
+                    {/* <Card style={[styles.card, { backgroundColor: theme.colors.surface }]}>
+                        <Card.Title title='每日學習量' titleStyle={{ color: theme.colors.onSurface }} />
                         <ContributionGraph
                             values={commitsData}
                             endDate={new Date('2017-04-01')}
-                            numDays={105}
+                            numDays={100}
                             width={screenWidth}
                             height={220}
-                            chartConfig={chartConfig}
-                        />
-
-                    </Card>
+                            chartConfig={chartConfig} />
+                    </Card> */}
                 </ScrollView>
             );
         };
@@ -187,7 +245,8 @@ class DashboardPage extends React.Component {
             return (
                 <TestPage navigation={navigation}
                     dark={this.state.dark}
-                    idioms={this.state.idioms} />
+                    idioms={this.state.idioms}
+                    dateString={this.state.dateString} />
             );
         };
 
@@ -206,7 +265,6 @@ class DashboardPage extends React.Component {
                         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
                     }} />
             </Stack.Navigator>
-
         );
     };
 };

@@ -113,8 +113,8 @@ class FavoritePage extends React.Component {
         const favoriteMainPage = ({ navigation }) => {
             return (
                 <View style={[styles.container]}>
-                    <Searchbar theme={theme}
-                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }} />
+                    {/* <Searchbar theme={theme}
+                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }} /> */}
                     <SectionList
                         sections={this.state.data}
                         keyExtractor={(item, index) => item + index}

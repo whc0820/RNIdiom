@@ -1,16 +1,18 @@
 import React from 'react';
-import { StyleSheet, View, TouchableOpacity, SectionList } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, SectionList, Keyboard } from 'react-native';
 import { Searchbar, Divider, Text } from 'react-native-paper';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
 import { CustomizedDarkTheme, CustomizedLightTheme } from '../themes';
 import { isDark } from '../database/darkDBHelper';
-import realm from '../database/darkDBHelper';
+import darkRealm from '../database/darkDBHelper';
 import PAGE_CONFIG from '../page/page-config.json';
-import idioms from '../resources/idioms.json';
+import Idioms from '../resources/idioms.json';
 import IdiomPage from '../page/IdiomPage';
 
 const Stack = createStackNavigator();
+
+let mQuery = '';
 
 class DictionaryPage extends React.Component {
     constructor(props) {
@@ -18,29 +20,30 @@ class DictionaryPage extends React.Component {
 
         this.state = {
             dark: false,
-            data: [],
-            isFavorite: false
+            pinyinObjs: [],
+            sourcePinyinObjs: [],
+            isFavorite: false,
         };
 
-        realm.addListener('change', this.updateUI);
+        darkRealm.addListener('change', this.updateDark);
+        Keyboard.addListener('keyboardDidHide', this.onKeyboardDidHide);
+        Keyboard.addListener('keyboardDidShow', this.onKeyboardDidShow);
     };
 
     componentDidMount() {
-        isDark().then((value) => {
-            this.setState({ dark: value });
-        });
+        this.updateDark();
 
         const PINYINS = ['ㄅ', 'ㄆ', 'ㄇ', 'ㄈ', 'ㄉ', 'ㄊ', 'ㄋ', 'ㄌ', 'ㄍ', 'ㄎ', 'ㄏ', 'ㄐ', 'ㄑ', 'ㄒ', 'ㄓ', 'ㄔ', 'ㄕ', 'ㄖ', 'ㄗ', 'ㄘ',
             'ㄙ', 'ㄧ', 'ㄨ', 'ㄩ', 'ㄚ', 'ㄛ', 'ㄜ', 'ㄝ', 'ㄤ', 'ㄥ', 'ㄦ'];
-        let data = [];
+        let pinyinObjs = [];
         for (let pinyin of PINYINS) {
-            let obj = {
+            let pinyinObj = {
                 title: pinyin,
                 data: []
             };
 
             let checkIdiomIsExist = (id) => {
-                for (let idiom of obj.data) {
+                for (let idiom of pinyinObj.data) {
                     if (idiom.id === id) {
                         return true;
                     }
@@ -48,30 +51,65 @@ class DictionaryPage extends React.Component {
                 return false;
             };
 
-            for (let idiom of idioms) {
+            for (let idiom of Idioms) {
                 let idiomId = idiom.id;
                 let idiomPinyin = idiom.pinyin;
                 if (idiomPinyin.startsWith(pinyin) && !checkIdiomIsExist(idiomId)) {
-                    obj.data.push(idiom);
+                    pinyinObj.data.push(idiom);
                 }
             }
 
-            if (obj.data.length > 0) {
-                data.push(obj);
+            if (pinyinObj.data.length > 0) {
+                pinyinObjs.push(pinyinObj);
             }
         }
 
-        this.setState({ data });
+        this.setState({
+            pinyinObjs,
+            sourcePinyinObjs: pinyinObjs
+        });
     };
 
     componentWillUnmount = () => {
-        realm.removeAllListeners();
+        darkRealm.removeAllListeners();
     };
 
-    updateUI = () => {
-        isDark().then((value) => {
-            this.setState({ dark: value });
+    updateDark = () => {
+        isDark().then((dark) => {
+            this.setState({ dark });
         });
+    };
+
+    onKeyboardDidShow = () => {
+        mQuery = '';
+    };
+
+    onKeyboardDidHide = () => {
+        console.log(mQuery);
+        if (mQuery === '') {
+            this.setState({ pinyinObjs: this.state.sourcePinyinObjs });
+        } else {
+            let pinyinObjs = [];
+            for (let pinyinObj of this.state.pinyinObjs) {
+                let newPinyinObj = {
+                    'title': pinyinObj.title,
+                    'data': []
+                };
+                for (let idiom of pinyinObj.data) {
+                    if (idiom.title.includes(mQuery)) {
+                        newPinyinObj.data.push(idiom);
+                    }
+                }
+                if (newPinyinObj.data.length > 0) {
+                    pinyinObjs.push(newPinyinObj);
+                }
+            }
+            this.setState({ pinyinObjs });
+        }
+    };
+
+    onQueryChange = (query) => {
+        mQuery = query;
     };
 
     onPressIdiom = (navigation, item) => {
@@ -95,14 +133,19 @@ class DictionaryPage extends React.Component {
         const dictionaryMainPage = ({ navigation }) => {
             return (
                 <View style={[styles.container]}>
-                    <Searchbar theme={theme}
-                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }} />
+                    <Searchbar
+                        onChangeText={this.onQueryChange}
+                        theme={theme}
+                        style={{ backgroundColor: theme.colors.surface, elevation: 0 }}
+                        inputStyle={{ color: theme.colors.onSurface }}
+                    />
                     <SectionList
-                        sections={this.state.data}
+                        sections={this.state.pinyinObjs}
                         keyExtractor={(item, index) => item + index}
                         renderSectionHeader={renderSectionHeader}
                         renderItem={({ item }) => <View>
-                            <TouchableOpacity style={{ padding: 16, backgroundColor: theme.colors.surface }}
+                            <TouchableOpacity
+                                style={{ padding: 16, backgroundColor: theme.colors.surface }}
                                 onPress={() => this.onPressIdiom(navigation, item)}>
                                 <Text theme={theme}>{item.title}</Text>
                             </TouchableOpacity>
